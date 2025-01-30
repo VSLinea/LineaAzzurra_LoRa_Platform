@@ -1,54 +1,25 @@
 import React from 'react'
-import KPICards from '../components/features/KPICards'
-import WaterQualityChart from '../components/features/WaterQualityChart'
-import MonitoringSummary from '../components/features/MonitoringSummary'
-import ChemicalStock from '../components/features/ChemicalStock'
-import UpcomingMaintenance from '../components/features/UpcomingMaintenance'
-import SensorMetrics from '../components/features/SensorMetrics'
-import RecentActivity from '../components/features/RecentActivity'
-import StockLevel from '../components/features/StockLevel'
+import UpcomingMaintenance from '../components/maintenance/UpcomingMaintenance'
+import WorkOrderStats from '../components/maintenance/WorkOrderStats'
+import MaintenanceCalendar from '../components/maintenance/MaintenanceCalendar'
 
 export default function DashboardPage() {
   return (
-    <div className="h-[calc(100vh-4rem)] p-2 grid grid-cols-[1fr_280px] gap-2">
-      {/* Main Content */}
-      <div className="space-y-2">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-2">
-          <KPICards />
-        </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        Maintenance Dashboard
+      </h1>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="card-container card-gradient-blue">
-            <WaterQualityChart />
-          </div>
-          <div className="card-container card-gradient-purple">
-            <MonitoringSummary />
-          </div>
-        </div>
+      <div className="grid gap-6">
+        <WorkOrderStats />
 
-        {/* Bottom Section */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="card-container card-gradient-emerald">
-            <StockLevel />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <UpcomingMaintenance />
           </div>
-          <div className="card-container card-gradient-amber">
-            <ChemicalStock />
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <MaintenanceCalendar />
           </div>
-          <div className="card-container card-gradient-blue">
-            <RecentActivity />
-          </div>
-        </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className="space-y-2">
-        <div className="card-container card-gradient-purple">
-          <UpcomingMaintenance />
-        </div>
-        <div className="card-container card-gradient-emerald">
-          <SensorMetrics />
         </div>
       </div>
     </div>

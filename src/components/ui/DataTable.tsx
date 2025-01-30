@@ -3,40 +3,48 @@
 import React from 'react'
 
 interface Column<T> {
-  key: string
   header: string
-  cell: (item: T) => React.ReactNode
-  className?: string
+  accessorKey: keyof T
+  cell?: (value: any) => React.ReactNode
 }
 
 interface DataTableProps<T> {
-  data: T[]
   columns: Column<T>[]
-  className?: string
+  data: T[]
+  onRowClick?: (row: T) => void
 }
 
-export default function DataTable<T>({ data, columns, className = '' }: DataTableProps<T>) {
+export default function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto">
-      <table className={`data-table ${className}`}>
-        <thead className="table-header">
+      <table className="w-full">
+        <thead className="bg-gray-50 dark:bg-gray-800/50">
           <tr>
             {columns.map((column) => (
-              <th 
-                key={column.key}
-                className={`px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-200 ${column.className || ''}`}
+              <th
+                key={String(column.accessorKey)}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-800/50">
-          {data.map((item, index) => (
-            <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {data.map((row, rowIndex) => (
+            <tr
+              key={rowIndex}
+              onClick={() => onRowClick?.(row)}
+              className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
+            >
               {columns.map((column) => (
-                <td key={column.key} className={`px-6 py-4 ${column.className || ''}`}>
-                  {column.cell(item)}
+                <td
+                  key={String(column.accessorKey)}
+                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300"
+                >
+                  {column.cell
+                    ? column.cell(row[column.accessorKey])
+                    : String(row[column.accessorKey])}
                 </td>
               ))}
             </tr>

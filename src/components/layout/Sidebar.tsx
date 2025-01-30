@@ -19,12 +19,11 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboardIcon },
-  { name: 'Pools', href: '/pools', icon: DropletIcon },
-  { name: 'Chemistry', href: '/chemistry', icon: BeakerIcon },
-  { name: 'Maintenance', href: '/maintenance', icon: WrenchIcon },
-  { name: 'Billing', href: '/billing', icon: CreditCardIcon },
-  { name: 'Orders', href: '/orders', icon: ShoppingCartIcon },
-  { name: 'Delivery', href: '/delivery', icon: TruckIcon },
+  { name: 'Work Orders', href: '/maintenance', icon: WrenchIcon },
+  { name: 'Clients', href: '/clients', icon: DropletIcon },
+  { name: 'Inventory', href: '/inventory', icon: ShoppingCartIcon },
+  { name: 'Schedule', href: '/schedule', icon: BeakerIcon },
+  { name: 'Staff', href: '/staff', icon: TruckIcon },
   { name: 'Reports', href: '/reports', icon: BarChart2Icon }
 ]
 

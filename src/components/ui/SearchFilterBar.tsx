@@ -1,43 +1,55 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Search, Filter, ChevronDown } from 'lucide-react'
 
-interface SearchFilterBarProps {
-  searchPlaceholder: string
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  showFilter?: boolean
+interface FilterOption {
+  label: string
+  options: string[]
 }
 
-export default function SearchFilterBar({ 
-  searchPlaceholder,
-  searchQuery,
-  onSearchChange,
-  showFilter = true
-}: SearchFilterBarProps) {
+interface SearchFilterBarProps {
+  onSearch: (query: string) => void
+  filters: FilterOption[]
+}
+
+export default function SearchFilterBar({ onSearch, filters }: SearchFilterBarProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setSearchQuery(query)
+    onSearch(query)
+  }
+
   return (
-    <div className="flex items-center space-x-3">
-      <div className="relative">
+    <div className="flex items-center justify-between">
+      <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
           type="text"
-          placeholder={searchPlaceholder}
+          placeholder="Search..."
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-4 py-2 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-800
-                   rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-64"
+          onChange={handleSearch}
+          className="pl-9 pr-4 py-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
-
-      {showFilter && (
-        <button className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50
-                         rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-          <Filter className="w-4 h-4" />
-          <span>Filter</span>
-          <ChevronDown className="w-4 h-4" />
-        </button>
-      )}
+      
+      <div className="flex items-center space-x-2">
+        {filters.map((filter) => (
+          <select
+            key={filter.label}
+            className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option value="">{filter.label}</option>
+            {filter.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        ))}
+      </div>
     </div>
   )
 } 
