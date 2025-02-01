@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Filter, ChevronDown, X, Check } from 'lucide-react'
+import { Filter, ChevronDown, X } from 'lucide-react'
 import ActionButton from './ActionButton'
 
 interface FilterOption {
@@ -155,13 +155,12 @@ export default function FilterPopover({
             <ActionButton
               label="Clear"
               variant="secondary"
-              icon={X}
               onClick={handleClearFilters}
               disabled={filters.length === 0}
             />
             <ActionButton
-              label="Apply"
-              icon={Check}
+              label="Apply Filters"
+              variant="primary"
               onClick={handleApplyFilters}
               disabled={filters.length === 0}
             />

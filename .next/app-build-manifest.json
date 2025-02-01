@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/page": [
+    "/delivery/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/delivery/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,65 +11,55 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/pools/page": [
+    "/reports/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/pools/page.js"
-    ],
-    "/chemistry/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/chemistry/page.js"
-    ],
-    "/maintenance/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/maintenance/page.js"
-    ],
-    "/billing/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/billing/page.js"
+      "static/chunks/app/reports/page.js"
     ],
     "/orders/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/orders/page.js"
     ],
-    "/delivery/page": [
+    "/billing/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/delivery/page.js"
+      "static/chunks/app/billing/page.js"
     ],
-    "/reports/page": [
+    "/maintenance/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/reports/page.js"
+      "static/chunks/app/maintenance/page.js"
     ],
-    "/settings/page": [
+    "/chemistry/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/settings/page.js"
+      "static/chunks/app/chemistry/page.js"
     ],
-    "/help/page": [
+    "/pools/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/help/page.js"
+      "static/chunks/app/pools/page.js"
     ],
-    "/logout/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/logout/page.js"
+      "static/chunks/app/page.js"
     ],
     "/account/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/account/page.js"
     ],
-    "/not-found": [
+    "/settings/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/not-found.js"
+      "static/chunks/app/settings/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

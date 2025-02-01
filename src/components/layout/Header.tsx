@@ -28,7 +28,7 @@ export default function Header() {
   }
 
   return (
-    <header className="h-16 bg-white dark:bg-[#1E1E2D] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 transition-colors duration-200">
+    <header className="h-16 bg-white dark:bg-[#1E1E2D] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 transition-colors duration-200 relative z-50">
       <div className="flex-1 max-w-2xl">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
@@ -67,7 +67,7 @@ export default function Header() {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-200 dark:border-gray-700">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-200 dark:border-gray-700 z-50">
               <Link 
                 href="/account"
                 className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"

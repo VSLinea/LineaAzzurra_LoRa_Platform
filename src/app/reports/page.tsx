@@ -131,7 +131,8 @@ export default function ReportsPage() {
     { id: 'overview', label: 'Overview' },
     { id: 'orders', label: 'Orders' },
     { id: 'inventory', label: 'Inventory' },
-    { id: 'budget', label: 'Budget' }
+    { id: 'budget', label: 'Budget' },
+    { id: 'pools', label: 'Pool Statistics' }
   ]
 
   const timeRangeOptions = [
@@ -140,6 +141,287 @@ export default function ReportsPage() {
     { value: '6m', label: 'Last 6 Months' },
     { value: '1y', label: 'Last Year' }
   ]
+
+  const renderOverviewTab = () => (
+    <>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Monthly Orders */}
+        <Card
+          header={{
+            title: 'Monthly Orders',
+            icon: TrendingUp
+          }}
+          gradient="blue"
+        >
+          <div className="h-[200px] p-4">
+            <Bar 
+              data={monthlyOrders}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                }
+              }}
+            />
+          </div>
+        </Card>
+
+        {/* Chemical Usage */}
+        <Card
+          header={{
+            title: 'Chemical Usage Distribution',
+            icon: Package
+          }}
+          gradient="emerald"
+        >
+          <div className="h-[200px] p-4">
+            <Pie 
+              data={chemicalUsage}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false
+              }}
+            />
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Budget Analysis */}
+        <Card
+          header={{
+            title: 'Budget vs Actual',
+            icon: DollarSign
+          }}
+          gradient="amber"
+        >
+          <div className="h-[200px] p-4">
+            <Line 
+              data={budgetTrend}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false
+              }}
+            />
+          </div>
+        </Card>
+
+        {/* Pool Statistics */}
+        <Card
+          header={{
+            title: 'Pool Statistics',
+            icon: Calendar,
+            subtitle: 'Performance metrics by pool'
+          }}
+        >
+          <div className="divide-y divide-gray-200 dark:divide-gray-800 max-h-[200px] overflow-y-auto">
+            <div className="grid grid-cols-5 gap-4 px-4 py-2 text-xs font-medium text-gray-500">
+              <div>Pool</div>
+              <div>Orders</div>
+              <div>Budget</div>
+              <div>Chemicals</div>
+              <div>Efficiency</div>
+            </div>
+            {poolStats.map((stat, index) => (
+              <div 
+                key={index}
+                className="grid grid-cols-5 gap-4 px-4 py-2 text-xs"
+              >
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {stat.pool}
+                </div>
+                <div className="text-gray-500">
+                  {stat.orders}
+                </div>
+                <div className="text-gray-500">
+                  {stat.budget}
+                </div>
+                <div className="text-gray-500">
+                  {stat.chemicals}
+                </div>
+                <div className="text-emerald-600 dark:text-emerald-400 font-medium">
+                  {stat.efficiency}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </>
+  )
+
+  const renderOrdersTab = () => (
+    <Card
+      header={{
+        title: 'Monthly Orders',
+        icon: TrendingUp
+      }}
+      gradient="blue"
+    >
+      <div className="h-[500px] p-4">
+        <Bar 
+          data={monthlyOrders}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }}
+        />
+      </div>
+    </Card>
+  )
+
+  const renderInventoryTab = () => (
+    <Card
+      header={{
+        title: 'Chemical Usage Distribution',
+        icon: Package
+      }}
+      gradient="emerald"
+    >
+      <div className="h-[500px] p-4">
+        <Pie 
+          data={chemicalUsage}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false
+          }}
+        />
+      </div>
+    </Card>
+  )
+
+  const renderBudgetTab = () => (
+    <Card
+      header={{
+        title: 'Budget vs Actual',
+        icon: DollarSign
+      }}
+      gradient="amber"
+    >
+      <div className="h-[500px] p-4">
+        <Line 
+          data={budgetTrend}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false
+          }}
+        />
+      </div>
+    </Card>
+  )
+
+  const renderPoolStatisticsTab = () => (
+    <Card
+      header={{
+        title: 'Pool Statistics',
+        icon: Calendar,
+        subtitle: 'Detailed performance metrics by pool'
+      }}
+    >
+      <div className="p-4">
+        <div className="mb-6">
+          <div className="grid grid-cols-3 gap-4">
+            {poolStats.map((stat, index) => (
+              <div key={index} className="card-container p-4">
+                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  {stat.pool}
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Orders</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stat.orders}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Budget</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stat.budget}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Chemical Usage</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stat.chemicals}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Efficiency</span>
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{stat.efficiency}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Chemical Usage by Pool</h3>
+              <div className="h-[300px]">
+                <Bar 
+                  data={{
+                    labels: poolStats.map(stat => stat.pool),
+                    datasets: [{
+                      label: 'Chemical Usage',
+                      data: poolStats.map(stat => parseInt(stat.chemicals)),
+                      backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                      borderColor: 'rgb(59, 130, 246)',
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Efficiency Comparison</h3>
+              <div className="h-[300px]">
+                <Bar 
+                  data={{
+                    labels: poolStats.map(stat => stat.pool),
+                    datasets: [{
+                      label: 'Efficiency',
+                      data: poolStats.map(stat => parseInt(stat.efficiency)),
+                      backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                      borderColor: 'rgb(34, 197, 94)',
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false
+                      }
+                    },
+                    scales: {
+                      y: {
+                        min: 80,
+                        max: 100
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  )
 
   return (
     <div className="page-container">
@@ -172,108 +454,11 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        {/* Monthly Orders */}
-        <Card
-          header={{
-            title: 'Monthly Orders',
-            icon: TrendingUp
-          }}
-          gradient="blue"
-        >
-          <div className="p-4">
-            <Bar 
-              data={monthlyOrders}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    display: false
-                  }
-                }
-              }}
-            />
-          </div>
-        </Card>
-
-        {/* Chemical Usage */}
-        <Card
-          header={{
-            title: 'Chemical Usage Distribution',
-            icon: Package
-          }}
-          gradient="emerald"
-        >
-          <div className="p-4">
-            <Pie 
-              data={chemicalUsage}
-              options={{
-                responsive: true
-              }}
-            />
-          </div>
-        </Card>
-
-        {/* Budget Analysis */}
-        <Card
-          header={{
-            title: 'Budget vs Actual',
-            icon: DollarSign
-          }}
-          gradient="amber"
-          className="col-span-2"
-        >
-          <div className="p-4">
-            <Line 
-              data={budgetTrend}
-              options={{
-                responsive: true
-              }}
-            />
-          </div>
-        </Card>
-      </div>
-
-      {/* Pool Statistics */}
-      <Card
-        header={{
-          title: 'Pool Statistics',
-          icon: Calendar,
-          subtitle: 'Performance metrics by pool'
-        }}
-      >
-        <div className="divide-y divide-gray-200 dark:divide-gray-800">
-          <div className="grid grid-cols-5 gap-4 px-4 py-3 text-sm font-medium text-gray-500">
-            <div>Pool</div>
-            <div>Total Orders</div>
-            <div>Budget Utilized</div>
-            <div>Chemical Usage</div>
-            <div>Efficiency</div>
-          </div>
-          {poolStats.map((stat, index) => (
-            <div 
-              key={index}
-              className="grid grid-cols-5 gap-4 px-4 py-3 text-sm"
-            >
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                {stat.pool}
-              </div>
-              <div className="text-gray-500">
-                {stat.orders}
-              </div>
-              <div className="text-gray-500">
-                {stat.budget}
-              </div>
-              <div className="text-gray-500">
-                {stat.chemicals}
-              </div>
-              <div className="text-emerald-600 dark:text-emerald-400 font-medium">
-                {stat.efficiency}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+      {activeTab === 'overview' && renderOverviewTab()}
+      {activeTab === 'orders' && renderOrdersTab()}
+      {activeTab === 'inventory' && renderInventoryTab()}
+      {activeTab === 'budget' && renderBudgetTab()}
+      {activeTab === 'pools' && renderPoolStatisticsTab()}
     </div>
   )
 } 

@@ -3,7 +3,6 @@ import FormField from './FormField'
 import Select from './Select'
 import Input from './Input'
 import ActionButton from './ActionButton'
-import { Plus } from 'lucide-react'
 
 interface ItemOption {
   value: string
@@ -66,7 +65,6 @@ export default function AddItemForm({ itemOptions, onAddItem }: AddItemFormProps
           <ActionButton
             label="Add"
             variant="secondary"
-            icon={Plus}
             size="sm"
             className="w-full"
             onClick={handleSubmit}

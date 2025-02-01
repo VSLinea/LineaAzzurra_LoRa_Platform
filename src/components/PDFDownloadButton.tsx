@@ -19,8 +19,18 @@ interface BlobProviderProps {
 
 // Dynamic import both components
 const PDFDownloadLink = dynamic<any>(
-  () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
-  { ssr: false }
+  () => import('@react-pdf/renderer').then(mod => {
+    // Ensure we're getting the default export if it exists
+    return mod.PDFDownloadLink || mod.default.PDFDownloadLink
+  }),
+  { 
+    ssr: false,
+    loading: () => (
+      <button className="mt-4 text-sm font-medium text-gray-400" disabled>
+        Loading...
+      </button>
+    )
+  }
 )
 
 export default function PDFDownloadButton({ document, fileName }: PDFDownloadButtonProps) {
