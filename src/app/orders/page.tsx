@@ -117,7 +117,9 @@ const orderHistory: OrderType[] = [
 ]
 
 const statusTypeMap = {
+  draft: 'info',
   pending: 'warning',
+  validated: 'success',
   processing: 'info',
   shipped: 'info',
   delivered: 'success',
