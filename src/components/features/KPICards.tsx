@@ -3,7 +3,19 @@
 import React from 'react'
 import { Waves, AlertTriangle, WifiOff, Activity } from "lucide-react"
 
-const kpiData = [
+type KPIStatus = 'normal' | 'active' | 'warning' | 'error'
+
+interface KPIData {
+  title: string
+  subtitle: string
+  value: string
+  change: string
+  icon: React.ElementType
+  status: KPIStatus
+  bgClass: string
+}
+
+const kpiData: KPIData[] = [
   {
     title: "Total Pools",
     subtitle: "All registered pools",
@@ -32,17 +44,17 @@ const kpiData = [
     bgClass: "bg-gradient-to-br from-amber-600/10 via-amber-500/5 to-transparent"
   },
   {
-    title: "Offline Sensors",
-    subtitle: "Connection lost",
-    value: "3",
-    change: "+1",
+    title: "Offline Pools",
+    subtitle: "No connection",
+    value: "1",
+    change: "0",
     icon: WifiOff,
     status: 'error',
     bgClass: "bg-gradient-to-br from-rose-600/10 via-rose-500/5 to-transparent"
   }
 ]
 
-const statusColors = {
+const statusColors: Record<KPIStatus, string> = {
   normal: "text-blue-600 dark:text-blue-400",
   active: "text-emerald-600 dark:text-emerald-400",
   warning: "text-amber-600 dark:text-amber-400",
