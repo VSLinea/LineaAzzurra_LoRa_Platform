@@ -243,7 +243,7 @@ export default function MaintenancePage() {
                       <div className="text-sm text-gray-500">{item.type}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${priorityClasses[item.priority]}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${priorityClasses[item.priority.charAt(0).toUpperCase() + item.priority.slice(1) as keyof typeof priorityClasses]}`}>
                         {item.priority}
                       </span>
                     </td>
