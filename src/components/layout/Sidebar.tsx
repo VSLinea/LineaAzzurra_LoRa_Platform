@@ -17,7 +17,13 @@ import {
   LogOut
 } from 'lucide-react'
 
-const navigation = [
+interface NavigationItem {
+  name: string
+  href: string
+  icon: React.ElementType
+}
+
+const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboardIcon },
   { name: 'Pools', href: '/pools', icon: DropletIcon },
   { name: 'Chemistry', href: '/chemistry', icon: BeakerIcon },
@@ -34,10 +40,15 @@ const bottomLinks = [
   { name: 'Logout', href: '/logout', icon: LogOut }
 ]
 
+interface LinkItemProps {
+  item: NavigationItem
+  isActive: boolean
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
 
-  const LinkItem = ({ item, isActive }) => (
+  const LinkItem = ({ item, isActive }: LinkItemProps) => (
     <Link 
       href={item.href}
       className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200
