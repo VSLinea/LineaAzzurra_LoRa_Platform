@@ -3,7 +3,17 @@
 import React from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 
-const parameters = [
+interface WaterQualityParameter {
+  name: string
+  value: number
+  total: number
+  color: string
+  current: string
+  target: string
+  status: 'optimal' | 'good' | 'warning'
+}
+
+const parameters: WaterQualityParameter[] = [
   {
     name: 'pH Level',
     value: 72,
@@ -42,7 +52,7 @@ const parameters = [
   }
 ]
 
-function DonutChart({ data }) {
+function DonutChart({ data }: { data: WaterQualityParameter }) {
   const pieData = [
     { value: data.value },
     { value: data.total - data.value }
