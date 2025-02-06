@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String         @unique
+  password      String
+  emailVerified DateTime?
+  image         String?
+  roleId        String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  locations     UserLocation[]
+  role          UserRole       @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model UserRole {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  index       String
+  users       User[]
+  permissions Permission[] @relation("PermissionToUserRole")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("user_roles")
+}
+
+model Permission {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  roles UserRole[] @relation("PermissionToUserRole")
+
+  @@map("permissions")
+}
+
+enum LocationType {
+  GLOBAL
+  REGION
+  FACILITY
+  POOL
+}
+
+model Location {
+  id             String          @id @default(cuid())
+  name           String
+  code           String?
+  type           LocationType
+  index          String?
+  parentId       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  parent         Location?       @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children       Location[]      @relation("LocationHierarchy")
+  sensorReadings SensorReading[]
+  users          UserLocation[]
+
+  @@map("locations")
+}
+
+model UserLocation {
+  id         String   @id @default(cuid())
+  userId     String
+  locationId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  location   Location @relation(fields: [locationId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, locationId])
+  @@map("user_locations")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model SensorReading {
+  id         String   @id @default(cuid())
+  locationId String
+  type       String
+  value      Float
+  unit       String
+  timestamp  DateTime @default(now())
+  status     String
+  location   Location @relation(fields: [locationId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([locationId])
+  @@index([timestamp])
+  @@map("sensor_readings")
+}

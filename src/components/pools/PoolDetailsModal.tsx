@@ -1,328 +1,147 @@
 "use client"
 
-import React, { useState } from 'react'
-import { 
-  ThermometerIcon, 
-  DropletsIcon, 
-  ClockIcon, 
+import React from 'react'
+import {
+  ThermometerIcon,
+  DropletIcon,
+  DropletsIcon,
   AlertCircleIcon,
-  XIcon,
-  RulerIcon,
-  GaugeIcon,
-  SettingsIcon,
-  HistoryIcon,
-  TimerIcon,
-  ShieldCheckIcon,
-  TabletIcon,
-  BellIcon,
-  WrenchIcon
+  XIcon
 } from 'lucide-react'
-import { PoolData } from '../../types/pools'
-import StaffTab from './tabs/StaffTab'
-import UsageTab from './tabs/UsageTab'
-import DocumentationTab from './tabs/DocumentationTab'
+
+interface Pool {
+  id: string
+  name: string
+  facility: string
+  region: string
+  temperature: number
+  ph: number
+  chlorine: number
+  alkalinity: number
+  status: 'active' | 'maintenance' | 'issue'
+  lastChecked: string
+  alerts?: string[]
+}
 
 interface PoolDetailsModalProps {
-  pool: PoolData
+  pool: Pool
   isOpen: boolean
   onClose: () => void
 }
 
 export default function PoolDetailsModal({ pool, isOpen, onClose }: PoolDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'chemistry' | 'equipment' | 'history' | 'safety' | 'staff' | 'usage' | 'docs'>('overview')
-
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-white dark:bg-[#1E1E2D] rounded-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {pool.name}
-              </h2>
-              <span className={`status-badge mt-2 ${
-                pool.status === 'active' ? 'status-completed' :
-                pool.status === 'maintenance' ? 'status-pending' :
-                'status-in-progress'
-              }`}>
-                {pool.status}
-              </span>
-            </div>
-            <button 
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div className="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+        </div>
+
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div className="absolute top-0 right-0 pt-4 pr-4">
+            <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+              className="text-gray-400 hover:text-gray-500 focus:outline-none"
             >
-              <XIcon className="w-5 h-5" />
+              <XIcon className="h-6 w-6" />
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex space-x-1 mb-6 border-b border-gray-200 dark:border-gray-800">
-            {(['overview', 'chemistry', 'equipment', 'history', 'safety', 'staff', 'usage', 'docs'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors
-                  ${activeTab === tab 
-                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-b-2 border-blue-500' 
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+          <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="sm:flex sm:items-start">
+              <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                  {pool.name}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {pool.facility}, {pool.region}
+                </p>
 
-          {/* Content */}
-          <div className="space-y-6">
-            {activeTab === 'overview' && (
-              <>
-                {/* Basic Metrics Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="card-container p-4">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <ThermometerIcon className="w-4 h-4 text-blue-500" />
-                      <span className="text-gray-600 dark:text-gray-400">Temperature</span>
-                      <span className="font-medium">{pool.temperature}°F</span>
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <ThermometerIcon className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        Temperature
+                      </span>
                     </div>
+                    <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                      {pool.temperature}°C
+                    </p>
                   </div>
-                  <div className="card-container p-4">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <DropletsIcon className="w-4 h-4 text-blue-500" />
-                      <span className="text-gray-600 dark:text-gray-400">pH Level</span>
-                      <span className="font-medium">{pool.ph}</span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Dimensions */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <RulerIcon className="w-4 h-4 mr-2" />
-                    Pool Dimensions
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">Length</span>
-                      <span className="float-right font-medium">{pool.dimensions.length}m</span>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <DropletIcon className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        pH Level
+                      </span>
                     </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">Width</span>
-                      <span className="float-right font-medium">{pool.dimensions.width}m</span>
+                    <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                      {pool.ph}
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <DropletsIcon className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        Chlorine
+                      </span>
                     </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">Depth</span>
-                      <span className="float-right font-medium">{pool.dimensions.depth}m</span>
+                    <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                      {pool.chlorine} ppm
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <DropletsIcon className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        Alkalinity
+                      </span>
                     </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">Volume</span>
-                      <span className="float-right font-medium">{pool.dimensions.volume}m³</span>
-                    </div>
+                    <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                      {pool.alkalinity} ppm
+                    </p>
                   </div>
                 </div>
 
-                {/* Operating Hours */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <TimerIcon className="w-4 h-4 mr-2" />
-                    Operating Schedule
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Hours</span>
-                      <span className="font-medium">{pool.operatingHours.start} - {pool.operatingHours.end}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">Filter Cycles</span>
-                      <div className="mt-1">
-                        {pool.operatingHours.filterCycles.map((cycle, index) => (
-                          <span key={index} className="inline-block bg-blue-50 dark:bg-blue-500/10 
-                                                     text-blue-600 dark:text-blue-400 rounded-full px-2 py-1 
-                                                     text-xs mr-2 mb-2">
-                            {cycle}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Alerts */}
                 {pool.alerts && pool.alerts.length > 0 && (
-                  <div className="card-container p-4 bg-amber-50 dark:bg-amber-500/10">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">
-                      Active Alerts
-                    </h3>
-                    <div className="space-y-2">
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircleIcon className="h-5 w-5 text-red-400" />
+                      <h4 className="text-sm font-medium text-red-800 dark:text-red-200">
+                        Active Alerts
+                      </h4>
+                    </div>
+                    <div className="mt-2 space-y-2">
                       {pool.alerts.map((alert, index) => (
-                        <div key={index} className="flex items-start space-x-2">
-                          <AlertCircleIcon className="w-4 h-4 text-amber-500 mt-0.5" />
-                          <span className="text-sm text-amber-800 dark:text-amber-400">{alert}</span>
-                        </div>
+                        <p key={index} className="text-sm text-red-700 dark:text-red-300">
+                          • {alert}
+                        </p>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Timestamps */}
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <ClockIcon className="w-4 h-4" />
-                    <span>Last checked: {pool.lastChecked}</span>
-                  </div>
-                  <span>Next maintenance: {pool.nextMaintenance}</span>
-                </div>
-              </>
-            )}
-
-            {activeTab === 'chemistry' && (
-              <div className="space-y-6">
-                {/* Detailed Chemical Levels */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <TabletIcon className="w-4 h-4 mr-2" />
-                    Chemical Analysis
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Free Chlorine</span>
-                        <span className="float-right font-medium">{pool.chemicalLevels.freeChlorine} ppm</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Combined Chlorine</span>
-                        <span className="float-right font-medium">{pool.chemicalLevels.combinedChlorine} ppm</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Cyanuric Acid</span>
-                        <span className="float-right font-medium">{pool.chemicalLevels.cyanuricAcid} ppm</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Calcium</span>
-                        <span className="float-right font-medium">{pool.chemicalLevels.calcium} ppm</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">TDS</span>
-                        <span className="float-right font-medium">{pool.chemicalLevels.tds} ppm</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="mt-4 text-sm text-gray-500">
+                  Last updated: {new Date(pool.lastChecked).toLocaleString()}
                 </div>
               </div>
-            )}
+            </div>
+          </div>
 
-            {activeTab === 'equipment' && (
-              <div className="space-y-6">
-                {/* Equipment Details */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <WrenchIcon className="w-4 h-4 mr-2" />
-                    Equipment Details
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Pump</span>
-                        <span className="float-right font-medium">{pool.equipment.pump}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Filter</span>
-                        <span className="float-right font-medium">{pool.equipment.filter}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Heater</span>
-                        <span className="float-right font-medium">{pool.equipment.heater}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Chlorinator</span>
-                        <span className="float-right font-medium">{pool.equipment.chlorinator}</span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-600 dark:text-gray-400">Last Serviced</span>
-                        <span className="float-right font-medium">{pool.equipment.lastServiced}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'history' && (
-              <div className="space-y-6">
-                {/* Maintenance History */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <HistoryIcon className="w-4 h-4 mr-2" />
-                    Maintenance History
-                  </h3>
-                  <div className="space-y-4">
-                    {pool.maintenanceHistory.map((record, index) => (
-                      <div key={index} className="border-b border-gray-200 dark:border-gray-800 last:border-0 pb-4 last:pb-0">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{record.type}</span>
-                          <span className="text-gray-500">{record.date}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{record.description}</p>
-                        <div className="flex justify-between text-sm mt-2">
-                          <span className="text-gray-500">By: {record.performedBy}</span>
-                          {record.cost && (
-                            <span className="text-gray-500">Cost: ${record.cost}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'safety' && (
-              <div className="space-y-6">
-                {/* Safety Equipment */}
-                <div className="card-container p-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                    <ShieldCheckIcon className="w-4 h-4 mr-2" />
-                    Safety Equipment
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Life Buoys</span>
-                        <span className="float-right font-medium">{pool.safetyEquipment.lifebuoys}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">First Aid Kit</span>
-                        <span className="float-right font-medium">
-                          {pool.safetyEquipment.firstAidKits ? '✓' : '✗'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Emergency Phone</span>
-                        <span className="float-right font-medium">
-                          {pool.safetyEquipment.emergencyPhone ? '✓' : '✗'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Safety Signage</span>
-                        <span className="float-right font-medium">
-                          {pool.safetyEquipment.safetySignage ? '✓' : '✗'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'staff' && (
-              <StaffTab pool={pool} />
-            )}
-
-            {activeTab === 'usage' && <UsageTab pool={pool} />}
-            {activeTab === 'docs' && <DocumentationTab />}
+          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>

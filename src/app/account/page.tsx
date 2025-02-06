@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { 
   User,
   Settings,
@@ -20,62 +21,26 @@ import Select from '../../components/ui/Select'
 import ActionButton from '../../components/ui/ActionButton'
 import FormField from '../../components/ui/FormField'
 
-// Mock user data
-const userData = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  role: 'Pool Manager',
-  avatar: '/avatars/default.png',
-  phone: '+1 (555) 234-5678',
-  timezone: 'America/New_York',
-  language: 'English',
-  notifications: {
-    email: true,
-    push: true,
-    orderUpdates: true,
-    systemAlerts: false,
-    marketingEmails: false
-  }
-}
-
-// Mock activity history
-const activityHistory = [
-  {
-    action: 'Order Created',
-    details: 'Created order #ORD-2024-089',
-    timestamp: '2024-03-20 14:30',
-    type: 'order'
-  },
-  {
-    action: 'Settings Updated',
-    details: 'Updated notification preferences',
-    timestamp: '2024-03-19 11:15',
-    type: 'settings'
-  },
-  {
-    action: 'Login',
-    details: 'Logged in from Chrome/Windows',
-    timestamp: '2024-03-19 09:00',
-    type: 'security'
-  },
-  {
-    action: 'Profile Updated',
-    details: 'Changed phone number',
-    timestamp: '2024-03-18 16:45',
-    type: 'profile'
-  },
-  {
-    action: 'Order Approved',
-    details: 'Approved order #ORD-2024-088',
-    timestamp: '2024-03-18 13:20',
-    type: 'order'
-  }
-]
-
 export default function AccountPage() {
+  const { data: session } = useSession()
   const [activeTab, setActiveTab] = useState('profile')
   const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState(userData)
+  const [formData, setFormData] = useState({
+    name: session?.user?.name || '',
+    email: session?.user?.email || '',
+    role: session?.user?.role || '',
+    avatar: session?.user?.image || '/avatars/default.png',
+    phone: '',
+    timezone: 'America/New_York',
+    language: 'English',
+    notifications: {
+      email: true,
+      push: true,
+      orderUpdates: true,
+      systemAlerts: false,
+      marketingEmails: false
+    }
+  })
 
   const tabs = [
     { id: 'profile', label: 'Profile' },
@@ -84,8 +49,8 @@ export default function AccountPage() {
     { id: 'activity', label: 'Activity' }
   ]
 
-  const handleSave = () => {
-    // In a real app, this would call an API
+  const handleSave = async () => {
+    // Here you would typically call an API to update the user data
     setIsEditing(false)
   }
 
@@ -128,7 +93,7 @@ export default function AccountPage() {
               <div className="relative">
                 <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-800">
                   <img
-                    src={userData.avatar}
+                    src={formData.avatar}
                     alt="Profile"
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -139,10 +104,10 @@ export default function AccountPage() {
               </div>
               <div className="ml-6 flex-1">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                  {userData.name}
+                  {formData.name}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  {userData.role}
+                  {formData.role}
                 </p>
               </div>
               <ActionButton
@@ -274,74 +239,30 @@ export default function AccountPage() {
         )}
 
         {activeTab === 'security' && (
-          <div className="space-y-6">
-            {/* Password Change */}
-            <Card
-              header={{
-                title: 'Change Password',
-                icon: Shield,
-                subtitle: 'Update your password'
-              }}
-            >
-              <div className="p-6 space-y-6">
-                <div className="space-y-4">
-                  <FormField label="Current Password">
-                    <Input
-                      type="password"
-                      placeholder="Enter current password"
-                    />
-                  </FormField>
-
-                  <FormField label="New Password">
-                    <Input
-                      type="password"
-                      placeholder="Enter new password"
-                    />
-                  </FormField>
-
-                  <FormField label="Confirm Password">
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                    />
-                  </FormField>
-
-                  <div className="flex justify-end">
-                    <ActionButton
-                      label="Update Password"
-                      variant="primary"
-                    />
+          <Card
+            header={{
+              title: 'Security Settings',
+              icon: Shield,
+              subtitle: 'Manage your security preferences'
+            }}
+          >
+            <div className="p-6 space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    Two-Factor Authentication
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Add an extra layer of security to your account
                   </div>
                 </div>
+                <ActionButton
+                  label="Enable 2FA"
+                  variant="secondary"
+                />
               </div>
-            </Card>
-
-            {/* Security Settings */}
-            <Card
-              header={{
-                title: 'Security Settings',
-                icon: AlertCircle,
-                subtitle: 'Manage your security preferences'
-              }}
-            >
-              <div className="p-6 space-y-4">
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      Two-Factor Authentication
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Add an extra layer of security to your account
-                    </div>
-                  </div>
-                  <ActionButton
-                    label="Enable 2FA"
-                    variant="secondary"
-                  />
-                </div>
-              </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
         )}
 
         {activeTab === 'activity' && (
@@ -353,24 +274,12 @@ export default function AccountPage() {
             }}
           >
             <div className="divide-y divide-gray-200 dark:divide-gray-800">
-              {activityHistory.map((activity, index) => (
-                <div 
-                  key={index}
-                  className="p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {activity.action}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {activity.details}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {activity.timestamp}
-                  </div>
+              {/* Here you would map through actual activity history from an API */}
+              <div className="p-4">
+                <div className="text-sm text-gray-500">
+                  Activity history will be displayed here
                 </div>
-              ))}
+              </div>
             </div>
           </Card>
         )}

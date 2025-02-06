@@ -2,19 +2,22 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, Loader } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import { LogOut } from 'lucide-react'
 
 export default function LogoutPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Here you would typically clear any auth tokens/session
-    // For now, we'll just redirect to home after a brief delay
-    const timer = setTimeout(() => {
-      router.push('/')
-    }, 2000)
+    const performLogout = async () => {
+      await signOut({ redirect: false })
+      // Redirect to signin page after logout
+      setTimeout(() => {
+        router.push('/auth/signin')
+      }, 1500)
+    }
 
-    return () => clearTimeout(timer)
+    performLogout()
   }, [router])
 
   return (
@@ -44,10 +47,10 @@ export default function LogoutPage() {
         <div className="pt-4">
           <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-blue-500 rounded-full transition-all duration-2000 ease-out"
+              className="h-full bg-blue-500 rounded-full transition-all duration-1500 ease-out"
               style={{ 
                 width: '100%',
-                animation: 'shrink 2s linear forwards'
+                animation: 'shrink 1.5s linear forwards'
               }}
             />
           </div>
