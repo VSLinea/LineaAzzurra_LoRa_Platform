@@ -93,7 +93,7 @@ export const INITIAL_UNITS: OrganizationUnit[] = [
     id: 'italy',
     name: 'Italy',
     code: 'IT',
-    type: LocationType.COUNTRY,
+    type: LocationType.GLOBAL,
     index: 'A1'
   },
   {

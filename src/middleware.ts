@@ -5,27 +5,31 @@ import type { UserRoleType } from '@/lib/auth/types'
 
 // Configuration object for protected routes
 const protectedRoutes = {
+  // Dashboard is accessible to all authenticated users
+  '/dashboard': { requiredRole: 'POOL_VIEWER' as UserRoleType },
+  '/api/dashboard': { requiredRole: 'POOL_VIEWER' as UserRoleType },
+
   // Admin routes
   '/admin': { requiredRole: 'GLOBAL_ADMIN' as UserRoleType },
   '/api/admin': { requiredRole: 'GLOBAL_ADMIN' as UserRoleType },
   
-  // Regional management routes
+  // Regional management routes - accessible to GLOBAL_ADMIN and REGIONAL_MANAGER
   '/regions': { requiredRole: 'REGIONAL_MANAGER' as UserRoleType },
   '/api/regions': { requiredRole: 'REGIONAL_MANAGER' as UserRoleType },
   
-  // Maintenance company routes
+  // Maintenance company routes - accessible to GLOBAL_ADMIN, REGIONAL_MANAGER, and MAINTENANCE_COMPANY
   '/company/maintenance': { requiredRole: 'MAINTENANCE_COMPANY' as UserRoleType },
   '/api/company/maintenance': { requiredRole: 'MAINTENANCE_COMPANY' as UserRoleType },
   
-  // Facility management routes
+  // Facility management routes - accessible to roles above and FACILITY_MANAGER
   '/facilities': { requiredRole: 'FACILITY_MANAGER' as UserRoleType },
   '/api/facilities': { requiredRole: 'FACILITY_MANAGER' as UserRoleType },
   
-  // Pool management routes
+  // Pool management routes - accessible to roles above and POOL_MANAGER
   '/pools': { requiredRole: 'POOL_MANAGER' as UserRoleType },
   '/api/pools': { requiredRole: 'POOL_MANAGER' as UserRoleType },
   
-  // Maintenance routes
+  // Maintenance routes - accessible to all roles except POOL_VIEWER
   '/maintenance': { requiredRole: 'TECHNICIAN' as UserRoleType },
   '/api/maintenance': { requiredRole: 'TECHNICIAN' as UserRoleType },
 }
@@ -46,25 +50,22 @@ function hasRequiredRole(userRole: UserRoleType, requiredRole: UserRoleType): bo
 }
 
 export async function middleware(request: NextRequest) {
-  // Get the pathname of the request (e.g. /, /protected, /api/admin)
   const path = request.nextUrl.pathname
 
-  // If it's an api route that doesn't require authentication
-  if (path.startsWith('/api/auth') || path === '/api/health') {
+  // Allow access to authentication-related routes and static assets
+  if (
+    path.startsWith('/api/auth') || 
+    path === '/api/health' ||
+    path === '/auth/signin' ||
+    path === '/auth/error' ||
+    path === '/auth/signout' ||
+    path.startsWith('/_next') ||
+    path.startsWith('/static') ||
+    path.startsWith('/favicon') ||
+    path === '/'
+  ) {
     return NextResponse.next()
   }
-
-  // Check if the path matches any of our protected routes
-  const matchedRoute = Object.entries(protectedRoutes).find(([route]) => 
-    path.startsWith(route)
-  )
-
-  // If this is not a protected route, allow the request
-  if (!matchedRoute) {
-    return NextResponse.next()
-  }
-
-  const [_, config] = matchedRoute
 
   // Get the token from the request
   const token = await getToken({
@@ -72,24 +73,46 @@ export async function middleware(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET
   })
 
-  // If there's no token and this is a protected route,
-  // redirect to the sign-in page
+  // If there's no token, redirect to sign-in
   if (!token) {
     const signInUrl = new URL('/auth/signin', request.url)
     signInUrl.searchParams.set('callbackUrl', request.url)
     return NextResponse.redirect(signInUrl)
   }
 
-  // If there's a token but no role, or the role is insufficient,
-  // redirect to the unauthorized page
-  if (
-    !token.role ||
-    !hasRequiredRole(token.role as UserRoleType, config.requiredRole)
-  ) {
-    return NextResponse.redirect(new URL('/unauthorized', request.url))
+  // Special handling for API routes
+  if (path.startsWith('/api/')) {
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // For API routes, continue if authenticated
+    const matchedRoute = Object.entries(protectedRoutes).find(([route]) => 
+      path.startsWith(route)
+    )
+
+    if (matchedRoute) {
+      const [_, config] = matchedRoute
+      if (!hasRequiredRole(token.role as UserRoleType, config.requiredRole)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+
+    return NextResponse.next()
   }
 
-  // If all checks pass, allow the request
+  // For non-API routes
+  const matchedRoute = Object.entries(protectedRoutes).find(([route]) => 
+    path.startsWith(route)
+  )
+
+  if (matchedRoute) {
+    const [_, config] = matchedRoute
+    if (!hasRequiredRole(token.role as UserRoleType, config.requiredRole)) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 

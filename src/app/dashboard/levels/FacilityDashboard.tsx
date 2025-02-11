@@ -5,6 +5,8 @@ import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import KPICard from '@/components/ui/KPICard'
 
 interface Alert {
   id: string
@@ -46,29 +48,40 @@ interface FacilityStats {
 export default function FacilityDashboard() {
   const router = useRouter()
   const { data: session } = useSession()
+  const [stats, setStats] = useState<FacilityStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // This would come from an API call based on user's assigned facility
-  const stats: FacilityStats = {
-    pools: {
-      total: 8,
-      healthy: 6,
-      maintenance: 1,
-      offline: 1
-    },
-    staff: {
-      total: 24,
-      active: 20,
-      onLeave: 4
-    },
-    waterQuality: {
-      ph: 7.2,
-      chlorine: 1.5,
-      temperature: 28
-    },
-    alerts: {
-      critical: 1,
-      warning: 2
+  useEffect(() => {
+    const fetchFacilityData = async () => {
+      try {
+        // Get the facility ID from the user's assigned locations
+        const facilityLocation = session?.user?.locations?.find(loc => loc.type === 'FACILITY')
+        if (!facilityLocation) {
+          throw new Error('No facility assigned')
+        }
+
+        const response = await fetch(`/api/dashboard/facility/${facilityLocation.id}`)
+        const data = await response.json()
+
+        if (data.success) {
+          setStats(data.data)
+        } else {
+          console.error('Failed to fetch facility data:', data.error)
+        }
+      } catch (error) {
+        console.error('Error fetching facility data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    if (session?.user) {
+      fetchFacilityData()
+    }
+  }, [session])
+
+  if (loading || !stats) {
+    return <div>Loading...</div>
   }
 
   const alerts: Alert[] = [
@@ -263,6 +276,52 @@ export default function FacilityDashboard() {
           </div>
         </Card>
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <KPICard
+          title="Total Pools"
+          value={stats.pools.total.toString()}
+          icon={Droplet}
+          gradient="blue"
+          change={{
+            value: `${stats.pools.healthy} healthy`,
+            trend: stats.pools.healthy === stats.pools.total ? 'up' : 'down'
+          }}
+        />
+        
+        <KPICard
+          title="Active Staff"
+          value={stats.staff.active.toString()}
+          icon={Users}
+          gradient="emerald"
+          change={{
+            value: `${stats.staff.onLeave} on leave`,
+            trend: 'down'
+          }}
+        />
+
+        <KPICard
+          title="Water Quality"
+          value={`${(stats.waterQuality.ph + stats.waterQuality.chlorine) / 2}%`}
+          icon={Activity}
+          gradient="amber"
+          change={{
+            value: 'Normal',
+            trend: 'up'
+          }}
+        />
+
+        <KPICard
+          title="Active Alerts"
+          value={(stats.alerts.critical + stats.alerts.warning).toString()}
+          icon={AlertTriangle}
+          gradient="rose"
+          change={{
+            value: `${stats.alerts.critical} critical`,
+            trend: 'down'
+          }}
+        />
+      </div>
     </div>
   )
 } 

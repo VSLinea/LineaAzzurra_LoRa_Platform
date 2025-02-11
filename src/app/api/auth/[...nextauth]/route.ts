@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
+import { authOptions } from './authOptions'; // Ensure this is the correct path
 import type { NextAuthOptions } from 'next-auth'
-import type { JWT } from 'next-auth/jwt'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
@@ -41,76 +41,6 @@ declare module 'next-auth/jwt' {
     role?: UserRoleType
     locations?: Location[]
   }
-}
-
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any, // Type assertion needed due to version mismatch
-  session: {
-    strategy: 'jwt' as const,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Invalid credentials')
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          include: {
-            role: true,
-            locations: {
-              include: {
-                location: true
-              }
-            }
-          }
-        }) as DbUser | null
-
-        if (!user || !await compare(credentials.password, user.password)) {
-          throw new Error('Invalid credentials')
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role.name,
-          locations: user.locations.map((ul: UserLocation) => ul.location)
-        }
-      }
-    })
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-        token.locations = user.locations
-      }
-      return token
-    },
-    async session({ session, token }) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          role: token.role,
-          locations: token.locations
-        } as User
-      }
-    }
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error'
-  },
-  secret: process.env.NEXTAUTH_SECRET
 }
 
 const handler = NextAuth(authOptions)

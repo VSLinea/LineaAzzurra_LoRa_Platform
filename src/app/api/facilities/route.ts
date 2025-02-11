@@ -1,96 +1,45 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
-import type { Location } from '@/lib/auth/types'
+import { authOptions } from '../auth/[...nextauth]/authOptions'
+import { LocationType } from '@/lib/auth/types'
 
-interface SensorReading {
-  type: string
-  value: number
-  timestamp: Date
-}
+const prisma = new PrismaClient()
 
-interface LocationWithRelations extends Location {
-  parent?: Location | null
-  children?: Location[]
-  sensorReadings?: SensorReading[]
-}
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET() {
   try {
-    // Get user session
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's accessible locations
-    const userLocations = session.user.locations
-    const userLocationIds = userLocations.map(loc => loc.id)
-
-    // Get facilities based on user's access
     const facilities = await prisma.location.findMany({
       where: {
-        type: 'FACILITY',
-        OR: [
-          { id: { in: userLocationIds } },
-          { parentId: { in: userLocationIds } },
-          {
-            children: {
-              some: {
-                id: { in: userLocationIds }
-              }
-            }
-          }
-        ]
+        type: LocationType.FACILITY
       },
       include: {
         parent: true,
-        children: true,
-        sensorReadings: {
+        children: {
           where: {
-            type: {
-              in: ['TEMPERATURE', 'PH', 'CHLORINE']
-            }
-          },
-          orderBy: {
-            timestamp: 'desc'
-          },
-          take: 3
+            type: LocationType.POOL
+          }
         }
       }
-    }) as LocationWithRelations[]
-
-    const facilitiesWithStats = facilities.map((facility: LocationWithRelations) => {
-      const pools = facility.children || []
-      const readings = facility.sensorReadings || []
-      
-      const latestTemp = readings.find((r: SensorReading) => r.type === 'TEMPERATURE')?.value
-      const latestPh = readings.find((r: SensorReading) => r.type === 'PH')?.value
-      const latestChlorine = readings.find((r: SensorReading) => r.type === 'CHLORINE')?.value
-
-      const hasAlerts = 
-        (latestTemp && (latestTemp > 30 || latestTemp < 25)) ||
-        (latestPh && (latestPh > 8 || latestPh < 6.5)) ||
-        (latestChlorine && (latestChlorine > 3 || latestChlorine < 1))
-
-      return {
-        id: facility.id,
-        name: facility.name,
-        region: facility.parent?.name || 'Unknown Region',
-        pools: pools.length,
-        activeAlerts: hasAlerts ? 1 : 0,
-        status: hasAlerts ? 'warning' : 'healthy'
-      }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: facilitiesWithStats
-    })
+    const mappedFacilities = facilities.map(facility => ({
+      id: facility.id,
+      name: facility.name,
+      region: facility.parent?.name || 'Unknown',
+      pools: facility.children.length,
+      activeAlerts: 0, // Placeholder, implement actual alerts count
+      status: 'healthy' as const // Placeholder, implement actual status calculation
+    }))
+
+    return NextResponse.json({ success: true, data: mappedFacilities })
   } catch (error) {
     console.error('Error fetching facilities:', error)
     return NextResponse.json(

@@ -7,43 +7,43 @@ export const RolePermissions: Record<UserRoleType, {
 }> = {
   'GLOBAL_ADMIN': {
     index: '1',
-    scope: ['GLOBAL', 'REGION', 'FACILITY', 'POOL'],
+    scope: [LocationType.GLOBAL, LocationType.REGION, LocationType.FACILITY, LocationType.POOL],
     permissions: ['VIEW', 'EDIT', 'CREATE', 'DELETE', 'MANAGE_USERS', 'MANAGE_SETTINGS', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'MANAGE_ORDERS', 'VIEW_REPORTS']
   },
   
   'REGIONAL_MANAGER': {
     index: '2',
-    scope: ['REGION', 'FACILITY', 'POOL'],
+    scope: [LocationType.REGION, LocationType.FACILITY, LocationType.POOL],
     permissions: ['VIEW', 'EDIT', 'CREATE', 'MANAGE_USERS', 'MANAGE_SETTINGS', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'MANAGE_ORDERS', 'VIEW_REPORTS']
   },
 
   'MAINTENANCE_COMPANY': {
     index: '2.1',
-    scope: ['REGION', 'FACILITY', 'POOL'],
+    scope: [LocationType.REGION, LocationType.FACILITY, LocationType.POOL],
     permissions: ['VIEW', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'MANAGE_ORDERS', 'VIEW_REPORTS']
   },
   
   'FACILITY_MANAGER': {
     index: '3',
-    scope: ['FACILITY', 'POOL'],
+    scope: [LocationType.FACILITY, LocationType.POOL],
     permissions: ['VIEW', 'EDIT', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'MANAGE_ORDERS', 'VIEW_REPORTS']
   },
   
   'POOL_MANAGER': {
     index: '4',
-    scope: ['POOL'],
+    scope: [LocationType.POOL],
     permissions: ['VIEW', 'EDIT', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'VIEW_REPORTS']
   },
   
   'TECHNICIAN': {
     index: '5',
-    scope: ['POOL'],
+    scope: [LocationType.POOL],
     permissions: ['VIEW', 'MANAGE_MAINTENANCE', 'MANAGE_CHEMICALS', 'VIEW_REPORTS']
   },
   
   'POOL_VIEWER': {
     index: '5',
-    scope: ['POOL'],
+    scope: [LocationType.POOL],
     permissions: ['VIEW', 'VIEW_REPORTS']
   }
 };

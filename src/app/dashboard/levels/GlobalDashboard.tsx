@@ -23,6 +23,24 @@ interface DashboardStats {
   }
 }
 
+const defaultStats: DashboardStats = {
+  regions: {
+    total: 0,
+    healthy: 0,
+    healthyPercentage: 0
+  },
+  facilities: {
+    total: 0,
+    operational: 0,
+    operationalPercentage: 0
+  },
+  pools: {
+    total: 0,
+    healthy: 0,
+    healthyPercentage: 0
+  }
+}
+
 interface RegionalStat {
   id: string
   name: string
@@ -32,18 +50,18 @@ interface RegionalStat {
 }
 
 export default function GlobalDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [stats, setStats] = useState<DashboardStats>(defaultStats)
   const [regionalStats, setRegionalStats] = useState<RegionalStat[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
+        setLoading(true)
         const response = await fetch('/api/dashboard')
         const data = await response.json()
         if (data.success) {
-          setStats(data.data.stats)
-          setRegionalStats(data.data.regionalOverview)
+          setStats(data.data.stats || defaultStats)
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
@@ -55,7 +73,7 @@ export default function GlobalDashboard() {
     fetchDashboardData()
   }, [])
 
-  if (loading || !stats) {
+  if (loading) {
     return <div>Loading...</div>
   }
 

@@ -3,21 +3,24 @@ import { PrismaClient } from '@prisma/client'
 import { ApiResponse, LocationResponse, LocationsQueryParams } from '@/types/api'
 import { LocationType } from '@/lib/auth/types'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '../auth/[...nextauth]/authOptions'
 
 const prisma = new PrismaClient()
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    console.log('Current session:', session)
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') as LocationsQueryParams['type']
     const parentId = searchParams.get('parentId') as string | undefined
     const includeChildren = searchParams.get('includeChildren') === 'true'
-
-    console.log('Query params:', { type, parentId, includeChildren })
 
     const locations = await prisma.location.findMany({
       where: {
@@ -29,39 +32,29 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('Found locations:', locations)
-
     const mappedLocations: LocationResponse[] = locations.map(loc => ({
       id: loc.id,
       name: loc.name,
-      code: loc.code,
+      code: loc.code || '',
       type: loc.type as LocationType,
-      index: loc.index,
+      index: loc.index || '',
       parentId: loc.parentId || undefined,
       children: loc.children?.map(child => ({
         id: child.id,
         name: child.name,
-        code: child.code,
+        code: child.code || '',
         type: child.type as LocationType,
-        index: child.index,
+        index: child.index || '',
         parentId: child.parentId || undefined
       }))
     }))
 
-    console.log('Mapped locations:', mappedLocations)
-
-    const response: ApiResponse<LocationResponse[]> = {
-      success: true,
-      data: mappedLocations
-    }
-
-    return NextResponse.json(response)
+    return NextResponse.json({ success: true, data: mappedLocations })
   } catch (error) {
     console.error('Error fetching locations:', error)
-    const response: ApiResponse = {
-      success: false,
-      error: 'Failed to fetch locations'
-    }
-    return NextResponse.json(response, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch locations' },
+      { status: 500 }
+    )
   }
 } 

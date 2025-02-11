@@ -168,7 +168,7 @@ async function main() {
     }
   })
 
-  // Create users
+  // Create users for each role
   const adminPassword = await hash('admin123', 12)
   const admin = await prisma.user.upsert({
     where: { email: 'admin@lineaazzurra.it' },
@@ -181,9 +181,82 @@ async function main() {
     }
   })
 
+  const regionalManagerPassword = await hash('regional123', 12)
+  const regionalManagerUser = await prisma.user.upsert({
+    where: { email: 'regional@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'regional@lineaazzurra.it',
+      name: 'North Italy Regional Manager',
+      password: regionalManagerPassword,
+      roleId: regionalManager.id
+    }
+  })
+
+  const maintenancePassword = await hash('maintenance123', 12)
+  const maintenanceUser = await prisma.user.upsert({
+    where: { email: 'maintenance@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'maintenance@lineaazzurra.it',
+      name: 'Maintenance Company',
+      password: maintenancePassword,
+      roleId: maintenanceCompany.id
+    }
+  })
+
+  const facilityManagerPassword = await hash('facility123', 12)
+  const facilityManagerUser = await prisma.user.upsert({
+    where: { email: 'facility@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'facility@lineaazzurra.it',
+      name: 'Milano Facility Manager',
+      password: facilityManagerPassword,
+      roleId: facilityManager.id
+    }
+  })
+
+  const poolManagerPassword = await hash('pool123', 12)
+  const poolManagerUser = await prisma.user.upsert({
+    where: { email: 'pool@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'pool@lineaazzurra.it',
+      name: 'Main Pool Manager',
+      password: poolManagerPassword,
+      roleId: poolManager.id
+    }
+  })
+
+  const technicianPassword = await hash('tech123', 12)
+  const technicianUser = await prisma.user.upsert({
+    where: { email: 'tech@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'tech@lineaazzurra.it',
+      name: 'Pool Technician',
+      password: technicianPassword,
+      roleId: poolManager.id
+    }
+  })
+
+  const viewerPassword = await hash('viewer123', 12)
+  const viewerUser = await prisma.user.upsert({
+    where: { email: 'viewer@lineaazzurra.it' },
+    update: {},
+    create: {
+      email: 'viewer@lineaazzurra.it',
+      name: 'Pool Viewer',
+      password: viewerPassword,
+      roleId: poolManager.id
+    }
+  })
+
   // Assign locations to users
   await prisma.userLocation.createMany({
     data: [
+      // Global Admin - access to all locations
       { userId: admin.id, locationId: global.id },
       { userId: admin.id, locationId: northItaly.id },
       { userId: admin.id, locationId: milanoCentral.id },
@@ -192,7 +265,41 @@ async function main() {
       { userId: admin.id, locationId: mainPool.id },
       { userId: admin.id, locationId: kidsPool.id },
       { userId: admin.id, locationId: lapPool.id },
-      { userId: admin.id, locationId: spaPool.id }
+      { userId: admin.id, locationId: spaPool.id },
+
+      // Regional Manager - access to North Italy region and below
+      { userId: regionalManagerUser.id, locationId: northItaly.id },
+      { userId: regionalManagerUser.id, locationId: milanoCentral.id },
+      { userId: regionalManagerUser.id, locationId: torinoEast.id },
+      { userId: regionalManagerUser.id, locationId: genovaWest.id },
+      { userId: regionalManagerUser.id, locationId: mainPool.id },
+      { userId: regionalManagerUser.id, locationId: kidsPool.id },
+      { userId: regionalManagerUser.id, locationId: lapPool.id },
+      { userId: regionalManagerUser.id, locationId: spaPool.id },
+
+      // Maintenance Company - access to all facilities and pools
+      { userId: maintenanceUser.id, locationId: milanoCentral.id },
+      { userId: maintenanceUser.id, locationId: torinoEast.id },
+      { userId: maintenanceUser.id, locationId: genovaWest.id },
+      { userId: maintenanceUser.id, locationId: mainPool.id },
+      { userId: maintenanceUser.id, locationId: kidsPool.id },
+      { userId: maintenanceUser.id, locationId: lapPool.id },
+      { userId: maintenanceUser.id, locationId: spaPool.id },
+
+      // Facility Manager - access to Milano Central and its pools
+      { userId: facilityManagerUser.id, locationId: milanoCentral.id },
+      { userId: facilityManagerUser.id, locationId: mainPool.id },
+      { userId: facilityManagerUser.id, locationId: kidsPool.id },
+
+      // Pool Manager - access to Main Pool only
+      { userId: poolManagerUser.id, locationId: mainPool.id },
+
+      // Technician - access to Main Pool and Kids Pool
+      { userId: technicianUser.id, locationId: mainPool.id },
+      { userId: technicianUser.id, locationId: kidsPool.id },
+
+      // Viewer - access to Main Pool only
+      { userId: viewerUser.id, locationId: mainPool.id }
     ],
     skipDuplicates: true
   })
